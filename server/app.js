@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import { serve } from "inngest/express";
 import {inngest,functions} from "./inngest/index.js"
 
 const app = express();
