@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { Profiler } from "react";
+
 
 const userSchema = new Schema(
   {
