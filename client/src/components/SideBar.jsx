@@ -13,12 +13,18 @@ const SideBar = ({ sideBarOpen, setSideBarOpen }) => {
       } transition-all duration-300 ease-in-out`}
     >
       <div className="w-full">
-        <img
+        {/* Logo + Name Container */}
+        <div
           onClick={() => navigate("/")}
-          src={assets.logo}
-          alt="logo"
-          className="w-26 ml-7 my-2 cursor-pointer"
-        />
+          className="flex items-center ml-4 my-2 cursor-pointer gap-2"
+        >
+          <img src={assets.logo} alt="logo" className="w-16 h-16" />
+          <h1 className="text-3xl font-extrabold tracking-wide">
+            <span className="text-blue-500">Pl</span>
+            <span className="text-red-500">ixa</span>
+          </h1>
+        </div>
+
         <hr className="border-gray-300 mb-8" />
         <MenuItems setSideBArOpen={setSideBarOpen} />
       </div>
