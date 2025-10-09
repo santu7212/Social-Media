@@ -1,10 +1,13 @@
- import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { dummyStoriesData } from "../assets/assets";
 import { Plus } from "lucide-react";
 import moment from "moment";
+import StoryModel from "./StoryModel";
 
 const StoriesBar = () => {
   const [stories, setStories] = useState([]);
+  const [showModel, setShowModel] = useState(false);
+  const [viewStory, setViewStory] = useState(false);
 
   const fetchStories = async () => {
     setStories(dummyStoriesData);
@@ -18,7 +21,7 @@ const StoriesBar = () => {
     <div className="w-screen sm:w-[calc(100vw-240px)] lg:max-w-2xl no-scrollbar overflow-x-auto px-4">
       <div className="flex gap-4 pb-5">
         {/* Add Story Card */}
-        <div
+        <div onClick={()=>setShowModel(true)}
           className="rounded-lg shadow-sm min-w-30 max-w-30 max-h-40 aspect-[3/4]
           cursor-pointer hover:shadow-lg transition-all duration-200
           border-2 border-dashed border-indigo-300
@@ -41,10 +44,9 @@ const StoriesBar = () => {
             className={`relative rounded-lg shadow min-w-30 max-w-30 max-h-40 
               cursor-pointer hover:shadow-lg transition-all duration-200 
               overflow-hidden active:scale-95
-              ${
-                story.media_type === "text"
-                  ? "bg-gradient-to-b from-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-800"
-                  : "bg-black"
+              ${story.media_type === "text"
+                ? "bg-gradient-to-b from-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-800"
+                : "bg-black"
               }`}
           >
             {/* Media Stories */}
@@ -83,10 +85,9 @@ const StoriesBar = () => {
             {/* Story Text */}
             <p
               className={`absolute top-16 left-3 text-sm truncate max-w-24 z-10
-                ${
-                  story.media_type === "text"
-                    ? "text-white/80"
-                    : "text-white drop-shadow"
+                ${story.media_type === "text"
+                  ? "text-white/80"
+                  : "text-white drop-shadow"
                 }`}
             >
               {story.content}
@@ -99,6 +100,11 @@ const StoriesBar = () => {
           </div>
         ))}
       </div>
+      {/* add story model  */}
+      {
+        showModel && <StoryModel setShowModel={setShowModel} fetchStories={fetchStories} />
+
+      }
     </div>
   );
 };
