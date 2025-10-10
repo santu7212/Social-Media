@@ -6,6 +6,10 @@
     font-family: "Outfit", sans-serif;
 }
 
+.no-scrollbar::-webkit-scrollbar{
+  display: none;
+}
+
 
 
 /* gpt suggest  */
