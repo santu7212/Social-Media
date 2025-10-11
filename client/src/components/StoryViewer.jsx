@@ -1,19 +1,16 @@
- import { BadgeCheck, X, ChevronLeft, ChevronRight } from 'lucide-react'
+ import { BadgeCheck, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 
-const StoryViewer = ({ stories, currentIndex, setCurrentIndex, setViewStory }) => {
+const StoryViewer = ({ viewStory, setViewStory }) => {
   const [progress, setProgress] = useState(0)
-  const viewStory = stories[currentIndex]
 
   useEffect(() => {
     if (!viewStory) return
 
     let timer, progressInterval
-
-    // Reset progress when a new story loads
     setProgress(0)
 
-    if (viewStory.media_type !== "video") {
+    if (viewStory.media_type !== 'video') {
       const duration = 10000 // 10 seconds
       const stepTime = 100
       let elapsed = 0
@@ -23,9 +20,8 @@ const StoryViewer = ({ stories, currentIndex, setCurrentIndex, setViewStory }) =
         setProgress((elapsed / duration) * 100)
       }, stepTime)
 
-      // auto-next after 10 seconds
       timer = setTimeout(() => {
-        handleNext()
+        handleClose()
       }, duration)
     }
 
@@ -33,31 +29,18 @@ const StoryViewer = ({ stories, currentIndex, setCurrentIndex, setViewStory }) =
       clearTimeout(timer)
       clearInterval(progressInterval)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewStory])
 
   const handleClose = () => {
     setViewStory(null)
   }
 
-  const handleNext = () => {
-    if (currentIndex < stories.length - 1) {
-      setCurrentIndex(currentIndex + 1)
-    } else {
-      setViewStory(null) // close viewer at end
-    }
-  }
-
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1)
-    }
-  }
-
   if (!viewStory) return null
 
   const renderContent = () => {
     switch (viewStory.media_type) {
-      case "image":
+      case 'image':
         return (
           <img
             src={viewStory.media_url}
@@ -65,22 +48,19 @@ const StoryViewer = ({ stories, currentIndex, setCurrentIndex, setViewStory }) =
             className="max-w-full max-h-screen object-contain"
           />
         )
-      case "video":
+      case 'video':
         return (
           <video
             controls
             autoPlay
-            onEnded={handleNext}
+            onEnded={handleClose}
             className="max-h-screen"
             src={viewStory.media_url}
           />
         )
-      case "text":
+      case 'text':
         return (
-          <div
-            className="w-full h-full flex items-center justify-center p-8 
-                       text-white text-2xl text-center"
-          >
+          <div className="w-full h-full flex items-center justify-center p-8 text-white text-2xl text-center">
             {viewStory.content}
           </div>
         )
@@ -94,9 +74,9 @@ const StoryViewer = ({ stories, currentIndex, setCurrentIndex, setViewStory }) =
       className="fixed inset-0 h-screen bg-black bg-opacity-90 z-[110] flex items-center justify-center"
       style={{
         backgroundColor:
-          viewStory.media_type === "text"
-            ? viewStory.background_color || "#000000"
-            : "#000000",
+          viewStory.media_type === 'text'
+            ? viewStory.background_color || '#000000'
+            : '#000000',
       }}
     >
       {/* Progress Bar */}
@@ -104,7 +84,7 @@ const StoryViewer = ({ stories, currentIndex, setCurrentIndex, setViewStory }) =
         <div
           className="h-full bg-white transition-all duration-100 linear"
           style={{ width: `${progress}%` }}
-        ></div>
+        />
       </div>
 
       {/* User Info */}
@@ -127,28 +107,6 @@ const StoryViewer = ({ stories, currentIndex, setCurrentIndex, setViewStory }) =
       >
         <X className="w-8 h-8 hover:scale-110 transition cursor-pointer" />
       </button>
-
-      {/* Prev Button */}
-      {currentIndex > 0 && (
-        <button
-          onClick={handlePrev}
-          className="absolute left-4 md:left-8 text-white p-2 rounded-full 
-                     bg-black/40 hover:bg-black/60 transition"
-        >
-          <ChevronLeft className="w-8 h-8" />
-        </button>
-      )}
-
-      {/* Next Button */}
-      {currentIndex < stories.length - 1 && (
-        <button
-          onClick={handleNext}
-          className="absolute right-4 md:right-8 text-white p-2 rounded-full 
-                     bg-black/40 hover:bg-black/60 transition"
-        >
-          <ChevronRight className="w-8 h-8" />
-        </button>
-      )}
 
       {/* Story Content */}
       <div className="max-w-[90vw] max-h-[90vh] flex items-center justify-center">
