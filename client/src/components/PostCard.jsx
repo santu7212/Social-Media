@@ -1,92 +1,94 @@
- import React, { useState } from 'react'
-import { BadgeCheck, Heart, MessageCircle, Share2 } from 'lucide-react'
-import moment from 'moment'
-import { dummyUserData } from '../assets/assets'
+ import React, { useState } from "react";
+import { BadgeCheck, Heart, MessageCircle, Share2 } from "lucide-react";
+import moment from "moment";
+import { dummyUserData } from "../assets/assets";
 
 const PostCard = ({ post }) => {
-  // ✅ Fixed: quote escaping inside replace string and closing tag typo
-  const postWithSpecialCharecters = post.content.replace(
+  const postWithSpecialCharacters = post.content.replace(
     /(#\w+)/g,
-    '<span class="text-indigo-600">$1</span>'
-  )
+    '<span class="text-indigo-600 font-medium">$1</span>'
+  );
 
-  const [likes,setLikes]=useState(post.likes_count)
-  const currentUser= dummyUserData
+  const [likes, setLikes] = useState(post.likes_count);
+  const currentUser = dummyUserData;
 
-  const handleLike=async()=>{
-
-  }
+  const handleLike = async () => {
+    // Like handler logic (future)
+  };
 
   return (
-    <div className='bg-white rounded-xl shadow p-4 space-y-4 w-full max-w-2xl'>
-      {/* user info */}
-      <div className='inline-flex items-center gap-3 cursor-pointer'>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 space-y-4 w-full max-w-2xl">
+      {/* --- User Info --- */}
+      <div className="flex items-center gap-3">
         <img
           src={post.user.profile_picture}
-          className='w-10 h-10 rounded-full shadow'
-          alt=''
+          alt=""
+          className="w-11 h-11 rounded-full border border-gray-200 object-cover"
         />
         <div>
-          {/* ✅ Fixed: "item-center spasce-x1" → "items-center space-x-1" */}
-          <div className='flex items-center space-x-1'>
+          <div className="flex items-center space-x-1 text-gray-900 font-semibold">
             <span>{post.user.full_name}</span>
-            <BadgeCheck className='w-4 h-4 text-blue-500' />
+            <BadgeCheck className="w-4 h-4 text-blue-500" />
           </div>
-          {/* ✅ Fixed: "grey" → "gray" */}
-          <div className='text-gray-500 text-sm'>
+          <div className="text-gray-500 text-sm">
             @{post.user.username} · {moment(post.createdAt).fromNow()}
           </div>
         </div>
       </div>
 
-      {/* content */}
+      {/* --- Post Content --- */}
       {post.content && (
         <div
-          className='text-gray-800 text-sm whitespace-pre-line'
-          dangerouslySetInnerHTML={{ __html: postWithSpecialCharecters }}
+          className="text-gray-800 text-[15px] leading-relaxed whitespace-pre-line"
+          dangerouslySetInnerHTML={{ __html: postWithSpecialCharacters }}
         />
       )}
 
-      {/* images */}
-      <div className='grid grid-cols-2 gap-2'>
-        {post.image_urls.map((img, index) => (
-          <img
-            src={img}
-            key={index}
-            className={`w-full h-48 object-cover rounded-lg ${
-              post.image_urls.length === 1 && 'col-span-2 h-auto'
+      {/* --- Post Images --- */}
+      {post.image_urls?.length > 0 && (
+        <div
+          className={`grid gap-2 ${
+            post.image_urls.length === 1 ? "grid-cols-1" : "grid-cols-2"
+          }`}
+        >
+          {post.image_urls.map((img, index) => (
+            <img
+              key={index}
+              src={img}
+              alt=""
+              className={`w-full rounded-xl object-cover ${
+                post.image_urls.length === 1 ? "h-auto" : "h-56"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* --- Actions --- */}
+      <div className="flex items-center gap-6 text-gray-600 text-sm pt-3 border-t border-gray-200">
+        <div className="flex items-center gap-1">
+          <Heart
+            className={`w-5 h-5 cursor-pointer ${
+              likes.includes(currentUser._id) ? "text-red-500" : "text-gray-500"
             }`}
-            alt=''
+            onClick={handleLike}
           />
-        ))}
-      </div>
-
-
-      {/* actioms  */}
-
-      <div className='flex items-center gap-4 text-grey-600 text-sm pt-2 border-t 
-      border-grey-300 '>
-        <div className='flex items-center gap-1'>
-            <Heart className={`w-4 h-4 cursor-pointer ${likes.includes(currentUser._id)
-                && "text-red-500"
-            }`} onClick={handleLike}/>
-            <span>{likes.length}</span>
+          <span>{likes.length}</span>
         </div>
 
-        <div className='flex items-center gap-1'>
-            <MessageCircle className='w-4 h-4'/>
-            <span>{12}</span>
+        <div className="flex items-center gap-1">
+          <MessageCircle className="w-5 h-5 text-gray-500" />
+          <span>12</span>
         </div>
 
-
-        <div className='flex items-center gap-1'>
-            < Share2 className='w-4 h-4'/>
-            <span>{12}</span>
+        <div className="flex items-center gap-1">
+          <Share2 className="w-5 h-5 text-gray-500" />
+          <span>12</span>
         </div>
-
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PostCard
+export default PostCard;
+ 
