@@ -3,7 +3,8 @@ import { dummyPostsData } from "../assets/assets.js"
 import Loading from '../components/Loading.jsx'
 import StoriesBar from '../components/StoriesBar.jsx'
 import PostCard from '../components/PostCard.jsx'
-// import {sponsored_img} from "../assets/assets.js"
+import RecentMessages from '../components/RecentMessages.jsx'
+  
 
 const Feed = () => {
 
@@ -66,8 +67,7 @@ const Feed = () => {
  
 
 
-        <h1>Recent messages </h1>
-
+       <RecentMessages/>
       </div>
 
     </div>
