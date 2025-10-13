@@ -1,4 +1,4 @@
-import React from "react";
+ import React from "react";
 import { assets, dummyUserData } from "../assets/assets.js";
 import { Link, useNavigate } from "react-router-dom";
 import MenuItems from "./MenuItems.jsx";
@@ -34,27 +34,26 @@ const SideBar = ({ sideBarOpen, setSideBarOpen }) => {
 
         <Link
           to="/create-post"
-          className="flex items-center justify-center gap-2 py-2.5 mt-6 mx-6 rounded-lg 
-        bg-gradient-to-r from-indigo-500 to-purple-600
-         hover:from-indigo-700 hover:to-purple-800 active: scale-95
-          transition text-white cursor-pointer"
+          className="flex items-center justify-center gap-2 py-2.5 mt-6 mx-6 rounded-lg
+          bg-gradient-to-r from-blue-500 to-red-500
+          active:scale-95 transition text-white cursor-pointer"
         >
-          <CirclePlus className="w-5 h-5 " />
-          Creater Post
+          <CirclePlus className="w-5 h-5" />
+          Create Post
         </Link>
       </div>
 
-      <div className="w-full border-t border-grey-200 p-4 px-7 flex items-center justify-between">
+      <div className="w-full border-t border-slate-200 p-4 px-7 flex items-center justify-between">
         <div className="flex gap-2 items-center cursor-pointer">
           <UserButton />
           <div>
-            <h1 className="text-sm font-medium">{user.full_name}</h1>
-            <p className="text-sm text-grey-500">@{user.username}</p>
+            <h1 className="text-sm font-medium text-slate-800">{user.full_name}</h1>
+            <p className="text-sm text-slate-500">@{user.username}</p>
           </div>
         </div>
         <LogOut
           onClick={signOut}
-          className="w-4.5 text-grey-400 hover:text-grey-700 transition cursor-pointer"
+          className="w-4.5 text-slate-400 hover:text-slate-700 transition cursor-pointer"
         />
       </div>
     </div>

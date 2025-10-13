@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+ import React, { useEffect, useState } from "react";
 import { dummyStoriesData } from "../assets/assets";
 import { Plus } from "lucide-react";
 import moment from "moment";
@@ -22,14 +22,15 @@ const StoriesBar = () => {
     <div className="w-screen sm:w-[calc(100vw-240px)] lg:max-w-2xl no-scrollbar overflow-x-auto px-4">
       <div className="flex gap-4 pb-5">
         {/* Add Story Card */}
-        <div onClick={()=>setShowModel(true)}
+        <div
+          onClick={() => setShowModel(true)}
           className="rounded-lg shadow-sm min-w-30 max-w-30 max-h-40 aspect-[3/4]
-          cursor-pointer hover:shadow-lg transition-all duration-200
-          border-2 border-dashed border-indigo-300
-          bg-gradient-to-b from-indigo-50 to-white"
+          cursor-pointer transition-all duration-200
+          border-2 border-dashed border-blue-500
+          bg-gradient-to-b from-blue-100 to-red-100"
         >
           <div className="h-full flex flex-col items-center justify-center p-4">
-            <div className="size-10 bg-indigo-500 rounded-full flex items-center justify-center mb-3">
+            <div className="size-10 bg-gradient-to-r from-blue-500 to-red-500 rounded-full flex items-center justify-center mb-3">
               <Plus className="w-5 h-5 text-white" />
             </div>
             <p className="text-sm font-medium text-slate-700 text-center">
@@ -40,15 +41,15 @@ const StoriesBar = () => {
 
         {/* Story Cards */}
         {stories.map((story, index) => (
-          <div 
-          onClick={()=>setViewStory(story)}
+          <div
+            onClick={() => setViewStory(story)}
             key={story.id || index}
             className={`relative rounded-lg shadow min-w-30 max-w-30 max-h-40 
-              cursor-pointer hover:shadow-lg transition-all duration-200 
-              overflow-hidden active:scale-95
-              ${story.media_type === "text"
-                ? "bg-gradient-to-b from-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-800"
-                : "bg-black"
+              cursor-pointer transition-all duration-200 overflow-hidden active:scale-95
+              ${
+                story.media_type === "text"
+                  ? "bg-gradient-to-b from-blue-500 to-red-500 text-white"
+                  : "bg-black"
               }`}
           >
             {/* Media Stories */}
@@ -58,12 +59,12 @@ const StoriesBar = () => {
                   <img
                     src={story.media_url}
                     alt=""
-                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                   />
                 ) : (
                   <video
                     src={story.media_url}
-                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                     muted
                     loop
                     autoPlay
@@ -72,7 +73,7 @@ const StoriesBar = () => {
               </div>
             )}
 
-            {/* Gradient overlay for media (subtle bottom fade for readability) */}
+            {/* Gradient overlay for media */}
             {story.media_type !== "text" && (
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-0"></div>
             )}
@@ -81,16 +82,16 @@ const StoriesBar = () => {
             <img
               src={story.user.profile_picture}
               alt=""
-              className="absolute size-8 top-3 left-3 z-10 rounded-full ring ring-gray-100 shadow"
+              className="absolute size-8 top-3 left-3 z-10 rounded-full ring ring-white/70 shadow"
             />
 
             {/* Story Text */}
             <p
-              className={`absolute top-16 left-3 text-sm truncate max-w-24 z-10
-                ${story.media_type === "text"
-                  ? "text-white/80"
+              className={`absolute top-16 left-3 text-sm truncate max-w-24 z-10 ${
+                story.media_type === "text"
+                  ? "text-white/90 font-semibold"
                   : "text-white drop-shadow"
-                }`}
+              }`}
             >
               {story.content}
             </p>
@@ -102,17 +103,12 @@ const StoriesBar = () => {
           </div>
         ))}
       </div>
-      {/* add story model  */}
-      {
-        showModel && <StoryModel setShowModel={setShowModel} fetchStories={fetchStories} />
 
-      }
+      {/* Add Story Modal */}
+      {showModel && <StoryModel setShowModel={setShowModel} fetchStories={fetchStories} />}
 
-      {/* Add view story model  */}
-
-      {
-        viewStory && <StoryViewer  viewStory={viewStory} setViewStory={setViewStory}/>
-      }
+      {/* View Story Modal */}
+      {viewStory && <StoryViewer viewStory={viewStory} setViewStory={setViewStory} />}
     </div>
   );
 };
