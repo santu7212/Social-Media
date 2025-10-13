@@ -2,6 +2,7 @@
 import { BadgeCheck, Heart, MessageCircle, Share2 } from "lucide-react";
 import moment from "moment";
 import { dummyUserData } from "../assets/assets";
+import { useNavigate } from "react-router-dom";
 
 const PostCard = ({ post }) => {
   const postWithSpecialCharacters = post.content.replace(
@@ -16,6 +17,8 @@ const PostCard = ({ post }) => {
     // Like handler logic (future)
   };
 
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 space-y-4 w-full max-w-2xl">
       {/* --- User Info --- */}
@@ -23,14 +26,18 @@ const PostCard = ({ post }) => {
         <img
           src={post.user.profile_picture}
           alt=""
-          className="w-11 h-11 rounded-full border border-gray-200 object-cover"
+          className="w-11 h-11 rounded-full border border-gray-200 object-cover cursor-pointer"
+          onClick={() => navigate(`/profile` + post.user._id)}
         />
         <div>
-          <div className="flex items-center space-x-1 text-gray-900 font-semibold">
+          <div
+            className="flex items-center space-x-1 text-gray-900 font-semibold cursor-pointer"
+            onClick={() => navigate(`/profile` + post.user._id)}
+          >
             <span>{post.user.full_name}</span>
             <BadgeCheck className="w-4 h-4 text-blue-500" />
           </div>
-          <div className="text-gray-500 text-sm">
+          <div className="text-gray-500 text-sm cursor-default">
             @{post.user.username} · {moment(post.createdAt).fromNow()}
           </div>
         </div>
@@ -39,7 +46,7 @@ const PostCard = ({ post }) => {
       {/* --- Post Content --- */}
       {post.content && (
         <div
-          className="text-gray-800 text-[15px] leading-relaxed whitespace-pre-line"
+          className="text-gray-800 text-[15px] leading-relaxed whitespace-pre-line cursor-default"
           dangerouslySetInnerHTML={{ __html: postWithSpecialCharacters }}
         />
       )}
@@ -69,7 +76,9 @@ const PostCard = ({ post }) => {
         <div className="flex items-center gap-1">
           <Heart
             className={`w-5 h-5 cursor-pointer ${
-              likes.includes(currentUser._id) ? "text-red-500" : "text-gray-500"
+              likes.includes(currentUser._id)
+                ? "text-red-500"
+                : "text-gray-500"
             }`}
             onClick={handleLike}
           />
@@ -91,4 +100,3 @@ const PostCard = ({ post }) => {
 };
 
 export default PostCard;
- 
