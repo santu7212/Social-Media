@@ -108,6 +108,9 @@ const Profile = () => {
           )}
         </div>
       </div>
+
+      {/* Edit profile media  */}
+      {showEdit && <p>show profile edit </p>}
     </div>
   ) : (
     <Loading />
