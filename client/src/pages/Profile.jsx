@@ -27,13 +27,13 @@ const Profile = () => {
     <div className="relative h-full overflow-y-scroll bg-gray-50 p-6">
       <div className="max-w-3xl mx-auto">
         {/* profile card */}
-        <div className="bg-white rounded-2xl shadow overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
           {/* cover Photo */}
-          <div className="h-40 md:h-56 bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200">
+          <div className="h-40 md:h-56 bg-gradient-to-r from-blue-200 via-pink-200 to-red-200 relative">
             {user.cover_photo && (
               <img
                 src={user.cover_photo}
-                alt=""
+                alt="Cover"
                 className="w-full h-full object-cover"
               />
             )}
@@ -45,19 +45,21 @@ const Profile = () => {
             posts={posts}
             profileId={profileId}
             setShowEdit={setShowEdit}
+            editButtonClass="px-4 py-2 bg-gradient-to-r from-blue-500 to-red-500 text-white rounded-lg shadow-md hover:from-blue-600 hover:to-red-600 transition cursor-pointer"
+            locationClass="text-indigo-500 font-medium" // Calendar-like color
           />
         </div>
 
         {/* Tabs */}
         <div className="mt-6">
-          <div className="bg-white rounded-xl shadow p-1 flex max-w-md mx-auto">
+          <div className="bg-white rounded-xl shadow-md p-1 flex max-w-md mx-auto border border-gray-100">
             {["posts", "media", "likes"].map((tab) => (
               <button
                 onClick={() => setActiveTab(tab)}
                 key={tab}
                 className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
                   activeTab === tab
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-gradient-to-r from-blue-500 to-red-500 text-white shadow-md"
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
@@ -68,7 +70,7 @@ const Profile = () => {
 
           {/* posts */}
           {activeTab === "posts" && (
-            <div>
+            <div className="mt-6 space-y-4">
               {posts.map((post) => (
                 <PostCard key={post._id} post={post} />
               ))}
@@ -87,7 +89,7 @@ const Profile = () => {
                         target="_blank"
                         to={image}
                         key={index}
-                        className="relative group"
+                        className="relative group rounded-lg overflow-hidden shadow-md cursor-pointer"
                       >
                         <img
                           src={image}
@@ -97,7 +99,7 @@ const Profile = () => {
 
                         <p
                           className="absolute bottom-0 right-0 text-xs p-1 px-3 backdrop-blur-xl
-                          text-white opacity-0 group-hover:opacity-100 transition duration-300"
+                          text-white opacity-0 group-hover:opacity-100 transition duration-300 bg-black/30 rounded-l"
                         >
                           Posted {moment(post.createdAt).fromNow()}
                         </p>
@@ -110,8 +112,8 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Edit profile media  */}
-      {showEdit &&  <ProfileModel setShowEdit={setShowEdit}/>}
+      {/* Edit profile modal */}
+      {showEdit && <ProfileModel setShowEdit={setShowEdit} />}
     </div>
   ) : (
     <Loading />
