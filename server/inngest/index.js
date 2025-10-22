@@ -4,7 +4,7 @@ import User from "../models/user.model.js";
 // Create a client to send and receive events
 export const inngest = new Inngest({ id: "plixa-app" });
 
-// Ingest Function to save use data to database 
+// Inngest Function to save use data to database 
 const syncUserCreation=inngest.createFunction(
     {id:"sync-user-from-clerk"},
     {event:"clerk/user.created"},
@@ -29,7 +29,7 @@ const syncUserCreation=inngest.createFunction(
     }
 )
 
-// Ingest function to update user data in database 
+// Inngest function to update user data in database 
 
 
 const syncUserUpdation=inngest.createFunction(
@@ -50,7 +50,7 @@ const syncUserUpdation=inngest.createFunction(
     }
 )
 
-// Ingest function to delete user from data base
+// Inngest function to delete user from data base
 const syncUserDeletion=inngest.createFunction(
     {id:"delete-user-with-clerk"},
     {event:"clerk/user.deleted"},

@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.get("/", (req, res) => res.send("server is running for plixa"));
-app.use("/api/ingest", serve({ client: inngest, functions }))
+app.get("/", (req, res) => res.send("server is running on plixa"));
+app.use("/api/inngest", serve({ client: inngest, functions }))
 
 export default app;
