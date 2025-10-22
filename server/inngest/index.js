@@ -2,7 +2,7 @@ import { Inngest } from "inngest";
 import User from "../models/user.model.js";
 
 // Create a client to send and receive events
-export const inngest = new Inngest({ id: "Xpose-app" });
+export const inngest = new Inngest({ id: "plixa-app" });
 
 // Ingest Function to save use data to database 
 const syncUserCreation=inngest.createFunction(

@@ -22,7 +22,7 @@ const userSchema = new Schema(
     },
     bio: {
       type: String,
-      default: "Hey there! I am using Xpose",
+      default: "Hey there! I am using Plixa",
     },
     Profile_picture: {
       type: String,
