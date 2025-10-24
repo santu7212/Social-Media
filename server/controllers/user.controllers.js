@@ -1,4 +1,7 @@
+
 import User from "../models/user.model";
+
+import uploadToImageKit from "../utils/imagekitHelper";
 
 // Get user data from userID
 
@@ -22,5 +25,60 @@ const getUserData = async (req, res) => {
   }
 };
 
+const updateUserData = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    let { username, full_name, location, bio } = req.body;
 
-export {getUserData}
+    const tempUser = await User.findById(userId);
+    if (!username) {
+      username = tempUser.username;
+    }
+
+    if (tempUser.username !== username) {
+      const user = await User.findOne({ username });
+      if (user) {
+        // We will not change the user name if its already taken
+        username = tempUser.username;
+      }
+    }
+
+    const updatedData = {
+      username,
+      bio,
+      location,
+      full_name,
+    };
+
+    const { profile_picture, cover_photo } = req.files;
+
+    const profileFile = profile_picture?.[0];
+    const coverFile = cover_photo?.[0];
+
+    if (profileFile) {
+      updatedData.profile_picture = await uploadToImageKit(profileFile, 512);
+    }
+
+    if (coverFile) {
+      updatedData.cover_photo = await uploadToImageKit(coverFile, 1280);
+    }
+
+
+    const user = await User.findByIdAndUpdate(userId, updatedData, {
+      new: true,
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Failed to update user data" });
+    }
+
+
+
+    res.status(200).json({ success: true, user: user });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ message: "Internal Server Erroor " });
+  }
+};
+
+export { getUserData, updateUserData };
