@@ -73,7 +73,9 @@ const updateUserData = async (req, res) => {
     res.status(200).json({ success: true, user: user });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({ message: "Internal Server Erroor " });
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error  for update userdata" });
   }
 };
 
@@ -91,13 +93,45 @@ const discoverUser = async (req, res) => {
     });
 
     const filterUser = allUser.filter((user) => user._id !== userId);
-    res.status(200).json({users: filterUser})
+    res.status(200).json({ users: filterUser });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ message: "Internal server error " });
+    res
+      .status(500)
+      .json({ message: "Internal server error for discover user" });
   }
 };
 
+// Follow user
+const followUser = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    const { targetId } = req.body;
 
+    const user = await User.findById(userId);
+    const isAlreadyFollowing = user.following.includes(targetId);
 
-export { getUserData, updateUserData, discoverUser };
+    if (isAlreadyFollowing) {
+      return res
+        .status(400)
+        .json({ message: "You are already followinfg that user." });
+    }
+
+    // if not following
+    user.following.push(targetId);
+    await user.save();
+
+    // Update follower list of that user whome u following
+
+    const toUser = await User.findById(targetId);
+    toUser.followers.push(userId);
+    await toUser.save();
+
+    res.status(200).json({ message: "Now you are following this user" });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: "Internal server error for followUser" });
+  }
+};
+
+export { getUserData, updateUserData, discoverUser,followUser };
