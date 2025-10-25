@@ -1,4 +1,3 @@
-
 import User from "../models/user.model";
 
 import uploadToImageKit from "../utils/imagekitHelper";
@@ -63,7 +62,6 @@ const updateUserData = async (req, res) => {
       updatedData.cover_photo = await uploadToImageKit(coverFile, 1280);
     }
 
-
     const user = await User.findByIdAndUpdate(userId, updatedData, {
       new: true,
     });
@@ -72,8 +70,6 @@ const updateUserData = async (req, res) => {
       return res.status(400).json({ message: "Failed to update user data" });
     }
 
-
-
     res.status(200).json({ success: true, user: user });
   } catch (error) {
     console.log(error.message);
@@ -81,4 +77,27 @@ const updateUserData = async (req, res) => {
   }
 };
 
-export { getUserData, updateUserData };
+const discoverUser = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    const { search } = req.body;
+    const allUser = await User.find({
+      $or: [
+        { username: new RegExp(search, "i") },
+        { email: new RegExp(search, "i") },
+        { full_name: new RegExp(search, "i") },
+        { location: new RegExp(search, "i") },
+      ],
+    });
+
+    const filterUser = allUser.filter((user) => user._id !== userId);
+    res.status(200).json({users: filterUser})
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: "Internal server error " });
+  }
+};
+
+
+
+export { getUserData, updateUserData, discoverUser };
