@@ -134,15 +134,18 @@ const followUser = async (req, res) => {
   }
 };
 
-// Unfollow user 
- export const unfollowUser = async (req, res) => {
+// Unfollow user
+export const unfollowUser = async (req, res) => {
   try {
     const { userId } = req.auth();
     const { targetId } = req.body; // 👈 the user you want to unfollow
 
     // Prevent unfollowing yourself
     if (userId === targetId) {
-      return res.json({ success: false, message: "You cannot unfollow yourself" });
+      return res.json({
+        success: false,
+        message: "You cannot unfollow yourself",
+      });
     }
 
     // Find both users
@@ -154,11 +157,11 @@ const followUser = async (req, res) => {
     }
 
     // Remove targetId from logged-in user's 'following' list
-    user.following = user.following.filter(id => id !== targetId);
+    user.following = user.following.filter((id) => id !== targetId);
     await user.save();
 
     // Remove userId from target user's 'followers' list
-    targetUser.followers = targetUser.followers.filter(id => id !== userId);
+    targetUser.followers = targetUser.followers.filter((id) => id !== userId);
     await targetUser.save();
 
     res.json({
@@ -174,5 +177,4 @@ const followUser = async (req, res) => {
   }
 };
 
-
-export { getUserData, updateUserData, discoverUser, followUser,unfollowUser };
+export { getUserData, updateUserData, discoverUser, followUser, unfollowUser };
