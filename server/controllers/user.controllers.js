@@ -134,4 +134,45 @@ const followUser = async (req, res) => {
   }
 };
 
-export { getUserData, updateUserData, discoverUser,followUser };
+// Unfollow user 
+ export const unfollowUser = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    const { targetId } = req.body; // 👈 the user you want to unfollow
+
+    // Prevent unfollowing yourself
+    if (userId === targetId) {
+      return res.json({ success: false, message: "You cannot unfollow yourself" });
+    }
+
+    // Find both users
+    const user = await User.findById(userId);
+    const targetUser = await User.findById(targetId);
+
+    if (!user || !targetUser) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    // Remove targetId from logged-in user's 'following' list
+    user.following = user.following.filter(id => id !== targetId);
+    await user.save();
+
+    // Remove userId from target user's 'followers' list
+    targetUser.followers = targetUser.followers.filter(id => id !== userId);
+    await targetUser.save();
+
+    res.json({
+      success: true,
+      message: "You are no longer following this user",
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+export { getUserData, updateUserData, discoverUser, followUser,unfollowUser };
