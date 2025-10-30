@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 const storySchema = new Schema(
   {
-    user: { tyepe: String, ref: "User", required: true },
+    user: { type: String, ref: "User", required: true },
     content: { type: String },
     media_url: { type: String },
     media_type: {
@@ -10,8 +10,8 @@ const storySchema = new Schema(
       enum: ["text", "image", "video"],
       required: true,
     },
-    views_count: [{ tyepe: String, ref: "User" }],
-    background_color: { type: string },
+    views_count: [{ type: String, ref: "User" }],
+    background_color: { type: String },
   },
   { timestamps: true }
 );
