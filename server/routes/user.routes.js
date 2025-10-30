@@ -3,11 +3,13 @@ import {
   discoverUser,
   followUser,
   getUserData,
+  getUserProfile,
   unfollowUser,
   updateUserData,
 } from "../controllers/user.controller.js";
 import { protect } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
+import { getUserRecentMessages } from "../controllers/message.controller.js";
 
 const userRouter = Router();
 
@@ -28,5 +30,7 @@ userRouter.post(
 userRouter.post("/discover-user", protect, discoverUser);
 userRouter.post("/follow-user", protect, followUser);
 userRouter.post("/unfollow-user", protect, unfollowUser);
+userRouter.post("/get-profile", getUserProfile);
+userRouter.get("/recent-messages", protect, getUserRecentMessages);
 
 export default userRouter;

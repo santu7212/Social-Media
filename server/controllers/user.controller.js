@@ -1,5 +1,5 @@
 import User from "../models/user.model.js";
-
+import Post from "../models/post.model.js";
 import { uploadToImageKit } from "../utils/imagekitHelper.js";
 
 // Get user data from userID
@@ -64,13 +64,11 @@ const updateUserData = async (req, res) => {
     if (!user)
       return res.status(400).json({ message: "Failed to update user data" });
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        user,
-        message: "updated account details succesfully:",
-      });
+    return res.status(200).json({
+      success: true,
+      user,
+      message: "updated account details succesfully:",
+    });
   } catch (error) {
     console.error("Update User Error:", error);
     return res
@@ -177,4 +175,31 @@ const unfollowUser = async (req, res) => {
   }
 };
 
-export { getUserData, updateUserData, discoverUser, followUser, unfollowUser };
+const getUserProfile = async (req, res) => {
+  try {
+    const { profileId } = req.body;
+    const profile = await User.findById(profileId);
+    if (!profile) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Profile not found " });
+    }
+    const posts = await Post.find({ user: profileId }).populate("user");
+    res.status(200).json({ success: true, profile, posts });
+  } catch (error) {
+    console.log(error.message);
+    res.json({
+      success: false,
+      message: "Internal server error at get user profile",
+    });
+  }
+};
+
+export {
+  getUserData,
+  updateUserData,
+  discoverUser,
+  followUser,
+  unfollowUser,
+  getUserProfile,
+};

@@ -1,7 +1,8 @@
+import { inngest } from "../inngest/index.js";
 import Connection from "../models/connection.model.js";
 import User from "../models/user.model.js";
 
-//  send connection
+//  send connection request
 const sendConnectionRequest = async (req, res) => {
   try {
     const { userId } = req.auth();
@@ -45,7 +46,16 @@ const sendConnectionRequest = async (req, res) => {
     });
 
     if (!isConnected) {
-      await Connection.create({ from_user_id: userId, to_user_id: targetId });
+      const newConnection = await Connection.create({
+        from_user_id: userId,
+        to_user_id: targetId,
+      });
+      await inngest.send({
+        name: "app/connection-request",
+        data: {
+          connectionId: newConnection._id,
+        },
+      });
       return res.status(200).json({
         success: true,
         message: "Connection request sent successfully!",
