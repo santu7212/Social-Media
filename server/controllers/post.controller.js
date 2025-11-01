@@ -3,81 +3,85 @@ import { imagekit } from "../configs/imagekit.js";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 
-// Add post
-
+// Add post // controllers/post.controller.js (addPost)
 const addPost = async (req, res) => {
   try {
     const { userId } = req.auth();
     const { content, post_type } = req.body;
-    const images = req.files;
+    const images = req.files || [];
+
+    if (!userId) {
+      return res.status(400).json({ success: false, message: "User ID missing" });
+    }
+
+    // Ensure user exists
+    const userExists = await User.findById(userId);
+    if (!userExists) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
     let image_urls = [];
-
-    if (images.length) {
+    if (images.length > 0) {
       image_urls = await Promise.all(
         images.map(async (image) => {
           const fileBuffer = fs.readFileSync(image.path);
-
           const response = await imagekit.upload({
-            file: fileBuffer, // file buffer
+            file: fileBuffer,
             fileName: image.originalname,
-            folder: "posts", // original file name
+            folder: "posts",
           });
-
-          // return transformed URL
-          const url = imagekit.url({
+          return imagekit.url({
             path: response.filePath,
-            transformation: [
-              { quality: "auto" },
-              { format: "webp" },
-              { width: "1280" },
-            ],
+            transformation: [{ quality: "auto" }, { format: "webp" }, { width: "1280" }],
           });
-          return url;
         })
       );
     }
 
-    await Post.create({
-      user: userId,
+    const newPost = await Post.create({
+      user: userId,     // important: save the clerk string id
       content,
       image_urls,
       post_type,
     });
-    res.json({ success: true, message: "post created successfully " });
+
+    // Return the created post
+    return res.status(201).json({ success: true, message: "Post created", post: newPost });
   } catch (error) {
-    console.log(error.message);
-    res
-      .status(500)
-      .json({ success: false, message: "Internal server error at addPost" });
+    console.error("Error at addPost:", error);
+    return res.status(500).json({ success: false, message: "Internal server error at addPost" });
   }
 };
 
-// Get Post
+
+// Get Post // controllers/post.controller.js (getFeedPost)
 const getFeedPost = async (req, res) => {
   try {
     const { userId } = req.auth();
     const user = await User.findById(userId);
-    if (!user) {
-      return res.json({ success: false, mesage: "User not found" });
-    }
-    //User connection and following
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-    const userIds = [userId, ...user.connections, ...user.following];
+    const userIds = [userId, ...(user.connections || []), ...(user.following || [])];
 
     const posts = await Post.find({ user: { $in: userIds } })
-      .populate("user")
-      .sort({ createdAt: -1 });
+      .populate({
+        path: "user",
+        model: "User",
+        select: "full_name username profile_picture", // choose fields you need
+      })
+      .sort({ createdAt: -1 })
+      .lean();
 
-    res.status(200).json({ success: true, posts });
+    // Remove posts where populate failed and user is null/undefined
+    const validPosts = posts.filter(p => p.user);
+
+    return res.status(200).json({ success: true, posts: validPosts });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error at get feed post",
-    });
+    console.error("Error in getFeedPost:", error);
+    return res.status(500).json({ success: false, message: "Internal server error at get feed post" });
   }
 };
+
 
 // Like post
 const likePost = async (req, res) => {

@@ -1,4 +1,4 @@
- import React, { useState } from "react";
+ import React, { useEffect, useState } from "react";
 import {
   User,
   UserPlus,
@@ -7,16 +7,20 @@ import {
   UserCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {
-  dummyConnectionsData as connections,
-  dummyFollowersData as followers,
-  dummyFollowingData as following,
-  dummyPendingConnectionsData as pendingConnections,
-} from "../assets/assets";
+import { useSelector, useDispatch } from "react-redux";
+import { useAuth } from "@clerk/clerk-react";
+import { fetchConnections } from "../features/connections/connectionsSlice";
+import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const Connections = () => {
   const [currentTab, setcurrentTab] = useState("Followers");
   const navigate = useNavigate();
+  const { getToken } = useAuth();
+  const dispatch = useDispatch();
+
+  const { connections = [], pendingConnections = [], followers = [], following = [] } =
+    useSelector((state) => state.connections || {});
 
   const dataArray = [
     { label: "Followers", value: followers, icon: User },
@@ -24,6 +28,52 @@ const Connections = () => {
     { label: "Pending", value: pendingConnections, icon: UserRoundPen },
     { label: "Connections", value: connections, icon: UserPlus },
   ];
+
+  const handleUnfollow = async (userId) => {
+    try {
+      const { data } = await api.post(
+        "/api/user/unfollow-user",
+        {
+          targetId: userId,
+        },
+        { headers: { Authorization: `Bearer ${await getToken()}` } }
+      );
+      if (data.success) {
+        toast.success(data.messsage);
+        dispatch(fetchConnections(await getToken()));
+      } else {
+        toast(data.messsage);
+      }
+    } catch (error) {
+      toast.error(error.messsage);
+    }
+  };
+
+  const acceptConnection = async (userId) => {
+    try {
+      const { data } = await api.post(
+        "/api/connection/accept-connection",
+        {
+          targetId: userId,
+        },
+        { headers: { Authorization: `Bearer ${await getToken()}` } }
+      );
+      if (data.success) {
+        toast.success(data.messsage);
+        dispatch(fetchConnections(await getToken()));
+      } else {
+        toast(data.messsage);
+      }
+    } catch (error) {
+      toast.error(error.messsage);
+    }
+  };
+
+  useEffect(() => {
+    getToken().then((token) => {
+      dispatch(fetchConnections(token));
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-red-50">
@@ -50,7 +100,7 @@ const Connections = () => {
               h-28 w-44 rounded-2xl cursor-pointer select-none"
             >
               <b className="text-2xl bg-gradient-to-r from-blue-500 to-red-500 bg-clip-text text-transparent">
-                {item.value.length}
+                {item.value?.length || 0}
               </b>
               <p className="text-slate-700 font-medium">{item.label}</p>
             </div>
@@ -81,7 +131,7 @@ const Connections = () => {
                         : "bg-slate-100 text-slate-700"
                     }`}
                 >
-                  {tab.value.length}
+                  {tab.value?.length || 0}
                 </span>
               </button>
             ))}
@@ -92,7 +142,7 @@ const Connections = () => {
         <div className="flex flex-wrap gap-6 mt-8 justify-center">
           {dataArray
             .find((item) => item.label === currentTab)
-            .value.map((user) => (
+            ?.value?.map((user) => (
               <div
                 key={user._id}
                 className="w-full sm:w-[22rem] flex gap-5 p-5 bg-white/80 backdrop-blur-md
@@ -113,7 +163,7 @@ const Connections = () => {
                   </p>
                   <p className="text-slate-500 text-sm">@{user.username}</p>
                   <p className="text-xs text-slate-600 mt-1">
-                    {user.bio.slice(0, 30)}...
+                    {user.bio?.slice(0, 30)}...
                   </p>
 
                   <div className="flex max-sm:flex-col gap-2 mt-4">
@@ -128,6 +178,7 @@ const Connections = () => {
 
                     {currentTab === "Following" && (
                       <button
+                        onClick={() => handleUnfollow(user._id)}
                         className="w-full p-2 text-sm rounded-lg bg-slate-100
                         hover:bg-slate-200 text-slate-800 active:scale-95 transition-all shadow-sm cursor-pointer"
                       >
@@ -137,6 +188,7 @@ const Connections = () => {
 
                     {currentTab === "Pending" && (
                       <button
+                        onClick={() => acceptConnection(user._id)}
                         className="w-full p-2 text-sm rounded-lg bg-gradient-to-r
                         from-green-400 to-emerald-500 hover:to-emerald-600
                         text-white active:scale-95 transition-all shadow cursor-pointer"

@@ -3,53 +3,60 @@
 import { inngest } from "../inngest/index.js";
 import Story from "../models/story.model.js";
 import User from "../models/user.model.js";
-
+import { imagekit } from "../configs/imagekit.js"; 
+import fs from "fs"
+ 
 const addUserStory = async (req, res) => {
   try {
     const { userId } = req.auth();
     const { content, media_type, background_color } = req.body;
-    const media = req.file;
+
+    console.log("REQ BODY:", req.body);
+    console.log("REQ FILE:", req.file);
+    console.log("media_type:", media_type);
+
+    const media = req.file; 
     let media_url = "";
 
-    // Upload media to imagekit
-    if (media_type === "image" || media_type === "video") {
-      const fileBuffer = fs.readFileSync(file.path);
+    // Upload to ImageKit only if there's an actual file
+    if ((media_type === "image" || media_type === "video") && media) {
+      const fileBuffer = fs.readFileSync(media.path); // ✅ fixed here
 
       const response = await imagekit.upload({
-        file: fileBuffer, // file buffer
-        fileName: media_url.originalname, // original file name
+        file: fileBuffer,
+        fileName: media.originalname, // ✅ fixed variable name
       });
 
       media_url = response.url;
+
+      // cleanup the local file after upload (optional but recommended)
+      fs.unlinkSync(media.path);
     }
 
-    // Create Story 
-    const story =await Story.create({
-        user: userId,
-        content,
-        media_url,
-        background_color
-    })
-    // schedule story deleteion after 24 hours 
+    // Create Story
+    const story = await Story.create({
+      user: userId,
+      content,
+      media_url,
+      background_color,
+      media_type,
+    });
+
+    // Schedule story deletion after 24 hours
     await inngest.send({
       name: "app/story.delete",
-      data: {storyId: story._id},
-      
+      data: { storyId: story._id },
+    });
 
-    })
-
-    res.status(200).json({success:true})
+    res.status(200).json({ success: true });
   } catch (error) {
-    console.log(error.message);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Internal server error at add user story",
-      });
+    console.log("Story upload error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error at add user story",
+    });
   }
 };
-
 // get user story 
 const getUserStory = async (req, res) => {
   try {

@@ -1,16 +1,28 @@
- import React, { useState } from 'react';
-import { ArrowLeft, Sparkle, TextIcon, Upload } from 'lucide-react';
-import toast from 'react-hot-toast';
+import React, { useState } from "react";
+import { ArrowLeft, Sparkle, TextIcon, Upload } from "lucide-react";
+import toast from "react-hot-toast";
+import { useAuth } from "@clerk/clerk-react";
+import api from "../api/axios";
 
 const StoryModel = ({ setShowModel, fetchStories }) => {
   const bgColors = [
-    "#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF",
-    "#9D4EDD", "#FFB5E8", "#00B4D8"
+    "#FF6B6B",
+    "#FFD93D",
+    "#6BCB77",
+    "#4D96FF",
+    "#9D4EDD",
+    "#FFB5E8",
+    "#00B4D8",
   ];
 
   const textColors = [
-    "#FFFFFF", "#000000", "#FFD93D", "#FF6B6B",
-    "#00B4D8", "#9D4EDD", "#6BCB77"
+    "#FFFFFF",
+    "#000000",
+    "#FFD93D",
+    "#FF6B6B",
+    "#00B4D8",
+    "#9D4EDD",
+    "#6BCB77",
   ];
 
   const fontFamilies = [
@@ -18,7 +30,7 @@ const StoryModel = ({ setShowModel, fetchStories }) => {
     { name: "Serif", font: "Georgia, serif" },
     { name: "Mono", font: "'JetBrains Mono', monospace" },
     { name: "Hand", font: "'Pacifico', cursive" },
-    { name: "Playfair", font: "'Playfair Display', serif" }
+    { name: "Playfair", font: "'Playfair Display', serif" },
   ];
 
   const [mode, setMode] = useState("text");
@@ -30,15 +42,76 @@ const StoryModel = ({ setShowModel, fetchStories }) => {
   const [media, setMedia] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
+  const { getToken } = useAuth();
+
+  const MAX_VIDEO_DURATION = 120; // seconds
+  const MAX_VIDEO_SIZE_MB = 50; //MB
+
   const handleMediaUpload = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file.type.startsWith("video")) {
+      if (file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
+        toast.error(`Video size cannot be more than ${MAX_VIDEO_SIZE_MB} MB`);
+        setMedia(null);
+        setPreviewUrl(null);
+        return;
+      }
+      const video = document.createElement("video");
+      video.src = URL.createObjectURL(file);
+      video.preload = "metadata";
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        if (video.duration > MAX_VIDEO_DURATION) {
+          toast.error("video should be less than 2 minutes");
+          setMedia(null);
+          setPreviewUrl(null);
+        } else {
+          setMedia(file);
+          setPreviewUrl(URL.createObjectURL(file));
+          setText("");
+          setMode("media");
+        }
+      };
+      video.src = URL.createObjectURL(file);
+    } else if (file.type.startsWith("image")) {
       setMedia(file);
       setPreviewUrl(URL.createObjectURL(file));
+      setText("");
+      setMode("media");
     }
   };
 
-  const handleCreateStory = async () => {};
+  const handleCreateStory = async () => {
+    const media_type =
+      mode === "media"
+        ? media?.type.startsWith("image")
+          ? "image"
+          : "video"
+        : "text";
+    if (media_type === "text" && !text) {
+      throw new Error("Please enter your text");
+    }
+    let formData = new FormData();
+    formData.append("content", text);
+    formData.append("media_type", media_type);
+   formData.append("media", media); 
+    formData.append("background_color", background);
+    const token = await getToken();
+    try {
+      const { data } = await api.post("/api/story/create-story", formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (data.success) {
+        setShowModel(false);
+        toast.success("Story posted succeessfully");
+        fetchStories();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 backdrop-blur-[6px] bg-black/30">
@@ -80,13 +153,20 @@ const StoryModel = ({ setShowModel, fetchStories }) => {
             />
           )}
 
-          {mode === "media" && previewUrl && (
-            media?.type.startsWith("image") ? (
-              <img src={previewUrl} className="object-contain max-h-full rounded-lg" />
+          {mode === "media" &&
+            previewUrl &&
+            (media?.type.startsWith("image") ? (
+              <img
+                src={previewUrl}
+                className="object-contain max-h-full rounded-lg"
+              />
             ) : (
-              <video src={previewUrl} controls className="object-contain max-h-full rounded-lg" />
-            )
-          )}
+              <video
+                src={previewUrl}
+                controls
+                className="object-contain max-h-full rounded-lg"
+              />
+            ))}
         </div>
 
         {/* Background Picker */}
@@ -111,7 +191,9 @@ const StoryModel = ({ setShowModel, fetchStories }) => {
                 {textColors.map((color) => (
                   <button
                     key={color}
-                    className={`w-5 h-5 rounded-full ring-2 ${textColor === color ? "ring-white" : "ring-white/30"} transition`}
+                    className={`w-5 h-5 rounded-full ring-2 ${
+                      textColor === color ? "ring-white" : "ring-white/30"
+                    } transition`}
                     style={{ backgroundColor: color }}
                     onClick={() => setTextColor(color)}
                   />
@@ -178,10 +260,7 @@ const StoryModel = ({ setShowModel, fetchStories }) => {
             }`}
           >
             <input
-              onChange={(e) => {
-                handleMediaUpload(e);
-                setMode("media");
-              }}
+              onChange={handleMediaUpload}
               type="file"
               accept="image/*,video/*"
               className="hidden"
@@ -195,8 +274,6 @@ const StoryModel = ({ setShowModel, fetchStories }) => {
           onClick={() =>
             toast.promise(handleCreateStory(), {
               loading: "Saving...",
-              success: <p>Story Added</p>,
-              error: (e) => <p>{e.message}</p>,
             })
           }
           className="flex items-center justify-center gap-2 text-white py-2.5 mt-4 w-full rounded-lg bg-gradient-to-r from-indigo-500/90 to-purple-600/90 hover:from-indigo-600 hover:to-purple-700 active:scale-95 transition-all shadow-md text-sm"

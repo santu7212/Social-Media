@@ -1,4 +1,4 @@
-import { inngest } from "../inngest/index.js";
+ import { inngest } from "../inngest/index.js";
 import Connection from "../models/connection.model.js";
 import User from "../models/user.model.js";
 
@@ -95,7 +95,7 @@ const sendConnectionRequest = async (req, res) => {
 const getUserConnection = async (req, res) => {
   const { userId } = req.auth();
   const user = await User.findById(userId).populate(
-    "connections followers, following"
+    "connections followers following"
   );
   const connections = user.connections;
   const followers = user.followers;
@@ -112,7 +112,7 @@ const getUserConnection = async (req, res) => {
     connections,
     followers,
     following,
-    pendingConnection,
+       pendingConnections: pendingConnection, 
   });
 };
 

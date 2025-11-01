@@ -7,28 +7,35 @@ import fs from "fs";
 const connections = {};
 
 // controller function for  server side endpoint
-const serverSideEventController = (req, res) => {
+ const serverSideEventController = (req, res) => {
   const { userId } = req.params;
-  console.log("New client connected", userId);
+  console.log("New client connected:", userId);
 
-  // set sse headers
+  // 1️⃣ Set SSE headers
   res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Catch-Control", "no-catch");
+  res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Origin", "*");
 
-  // add the client's response object to the  connection object
+  // 2️⃣ Force Express to send headers immediately
+  res.flushHeaders?.();
+
+  // 3️⃣ Store the client connection
   connections[userId] = res;
 
-  // send an initial event to the client
-  res.write("log: Connected to SSE stream\n\n");
+  // 4️⃣ Send initial event (MUST start with `data:`)
+  res.write(`data: ${JSON.stringify({ message: "Connected to SSE stream" })}\n\n`);
 
-  // Handle client disconnectioin
+  // 5️⃣ Heartbeat to prevent timeout every 15s
+  const interval = setInterval(() => {
+    res.write(":\n\n"); // comment event — keeps connection alive
+  }, 15000);
+
+  // 6️⃣ Clean up when client disconnects
   req.on("close", () => {
-    // remove the clients respone object from the connection array
+    clearInterval(interval);
     delete connections[userId];
-    console.log("Client disconnected");
+    console.log("Client disconnected:", userId);
   });
 };
 
@@ -112,11 +119,10 @@ const getChatMessages = async (req, res) => {
 const getUserRecentMessages = async (req, res) => {
   try {
     const { userId } = req.auth();
-    const messages = (
-      await Message.find(
-        { to_user_id: userId }.populate("from_user_id to_user_id")
-      )
-    ).toSorted({ createdAt: -1 });
+     const messages = await Message.find({ to_user_id: userId })
+  .populate("from_user_id to_user_id")
+  .sort({ createdAt: -1 });
+
     res.status(200).json({success:true,messages})
   } catch (error) {
     console.log(error.message);

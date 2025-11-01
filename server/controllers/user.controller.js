@@ -99,9 +99,7 @@ const discoverUser = async (req, res) => {
       .json({ message: "Internal server error for discover user" });
   }
 };
-
-// Follow user
-const followUser = async (req, res) => {
+ const followUser = async (req, res) => {
   try {
     const { userId } = req.auth();
     const { targetId } = req.body;
@@ -110,25 +108,28 @@ const followUser = async (req, res) => {
     const isAlreadyFollowing = user.following.includes(targetId);
 
     if (isAlreadyFollowing) {
-      return res
-        .status(400)
-        .json({ message: "You are already followinfg that user." });
+      return res.status(200).json({
+        success: false,
+        message: "You are already following that user.",
+      });
     }
 
-    // if not following
     user.following.push(targetId);
     await user.save();
-
-    // Update follower list of that user whome u following
 
     const toUser = await User.findById(targetId);
     toUser.followers.push(userId);
     await toUser.save();
 
-    res.status(200).json({ message: "Now you are following this user" });
+    res.status(200).json({
+      success: true,
+      message: "Now you are following this user",
+    });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ message: "Internal server error for followUser" });
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error for followUser" });
   }
 };
 

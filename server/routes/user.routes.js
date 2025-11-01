@@ -30,7 +30,7 @@ userRouter.post(
 userRouter.post("/discover-user", protect, discoverUser);
 userRouter.post("/follow-user", protect, followUser);
 userRouter.post("/unfollow-user", protect, unfollowUser);
-userRouter.post("/get-profile", getUserProfile);
-userRouter.get("/recent-messages", protect, getUserRecentMessages);
+userRouter.post("/view-profile", getUserProfile);
+userRouter.get("/recent-message", protect, getUserRecentMessages);
 
 export default userRouter;

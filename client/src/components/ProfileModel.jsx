@@ -1,9 +1,15 @@
  import React, { useState } from "react";
 import { dummyUserData } from "../assets/assets";
 import { Pencil } from "lucide-react";
+import { useSelector,useDispatch } from "react-redux";
+import { updateUser } from "../features/user/userSlice";
+import { useAuth } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
 
 const ProfileModel = ({ setShowEdit }) => {
-  const user = dummyUserData;
+  const dispatch=useDispatch()
+  const {getToken}=useAuth()
+  const user =  useSelector((state)=>state.user.value)
   const [editForm, setEditForm] = useState({
     username: user.username,
     bio: user.bio,
@@ -15,6 +21,26 @@ const ProfileModel = ({ setShowEdit }) => {
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
+    try {
+      const userData=new FormData();
+      const {full_name,username,bio, location,profile_picture,cover_photo}=editForm
+      userData.append("username",username)
+      userData.append("bio",bio)
+      userData.append("location",location)
+      userData.append("full_name",full_name)
+      
+
+      profile_picture && userData.append("profile_picture",profile_picture);
+      cover_photo && userData.append("cover_photo",cover_photo)
+      const token= await  getToken()
+      dispatch(updateUser({userData,token}))
+
+      setShowEdit(false)
+      
+    } catch (error) {
+      toast.error(error.message)
+      
+    }
   };
 
   return (
@@ -25,7 +51,7 @@ const ProfileModel = ({ setShowEdit }) => {
           Edit Profile
         </h1>
 
-        <form onSubmit={handleSaveProfile} className="space-y-4">
+        <form onSubmit={e=>toast.promise(handleSaveProfile(e),{loading: "Saving..."})} className="space-y-4">
           {/* Profile & Cover Photos */}
           <div className="flex items-center justify-center gap-4">
             {/* Profile Photo */}

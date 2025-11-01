@@ -1,12 +1,62 @@
- import React from "react";
+import React from "react";
 import { dummyUserData } from "../assets/assets";
 import { MapPin, MessageCircle, Plus, UserPlus2Icon } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { useAuth } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+import { fetchUser } from "../features/user/userSlice";
+import toast from "react-hot-toast";
+import api from "../api/axios";
 
 const UserCard = ({ user }) => {
-  const currentUser = dummyUserData;
+  const { getToken } = useAuth();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const currentUser = useSelector((state) => state.user.value);
 
-  const handleFollow = async () => {};
-  const handleConnectionRequest = async () => {};
+  const handleFollow = async () => {
+    try {
+      const { data } = await api.post(
+        "/api/user/follow-user",
+        { targetId: user._id },
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        dispatch(fetchUser(await getToken()));
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+
+  
+  const handleConnectionRequest = async () => {
+    if (currentUser.connections.includes(user._id)) {
+      return navigate("/messages/" + user._id);
+    }
+    try {
+      const { data } = await api.post(
+        "/api/connection/send-connection",
+        { targetId: user._id },
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        }
+      );
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   const isFollowing = currentUser?.following.includes(user._id);
   const isConnected = currentUser?.connections.includes(user._id);
@@ -49,7 +99,9 @@ const UserCard = ({ user }) => {
           <span>{user.location || "Unknown"}</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="font-semibold text-red-500">{user.followers.length}</span>
+          <span className="font-semibold text-red-500">
+            {user.followers.length}
+          </span>
           Followers
         </div>
       </div>

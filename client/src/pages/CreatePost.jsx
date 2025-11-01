@@ -1,16 +1,58 @@
- import React, { useState } from "react";
+import React, { useState } from "react";
 import { dummyUserData } from "../assets/assets";
 import { X, Image } from "lucide-react";
+
+import { useSelector } from "react-redux";
+import { useAuth } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
+import api from "../api/axios";
+
+import { useNavigate } from "react-router-dom";
 
 const CreatePost = () => {
+  const navigate = useNavigate();
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
   const [Loading, setLoading] = useState(false);
 
-  const user = dummyUserData;
+  const user = useSelector((state) => state.user.value);
 
-  const handleSubmit = async () => {};
+  const { getToken } = useAuth();
+
+  const handleSubmit = async () => {
+    if (!images.length && !content) {
+      return toast.error("Please add at least one image or text ");
+    }
+    setLoading(true);
+    const postType =
+      images.length && content
+        ? "text_with_image"
+        : images.length
+        ? "image"
+        : "text";
+    try {
+      const formData = new FormData();
+      formData.append("content", content);
+      formData.append("post_type", postType);
+      images.map((image) => {
+        formData.append("images", image);
+      });
+
+      const { data } = await api.post("/api/post/add-post", formData, {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+      if (data.success) {
+        navigate("/");
+      } else {
+        console.log(data.message);
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      console.log(error.message);
+      throw new Error(data.message);
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-10">
@@ -20,7 +62,9 @@ const CreatePost = () => {
           <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-2 bg-gradient-to-r from-blue-600 to-red-500 bg-clip-text text-transparent">
             Create Post
           </h1>
-          <p className="text-slate-500 text-sm">Share your thoughts with the world 🌍</p>
+          <p className="text-slate-500 text-sm">
+            Share your thoughts with the world 🌍
+          </p>
         </div>
 
         {/* Header */}
@@ -31,7 +75,9 @@ const CreatePost = () => {
             className="w-14 h-14 rounded-full shadow-md border-2 border-blue-100"
           />
           <div>
-            <h2 className="font-semibold text-lg text-slate-800">{user.full_name}</h2>
+            <h2 className="font-semibold text-lg text-slate-800">
+              {user.full_name}
+            </h2>
             <p className="text-sm text-gray-500">@{user.username}</p>
           </div>
         </div>
