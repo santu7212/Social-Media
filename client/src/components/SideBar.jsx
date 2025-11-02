@@ -1,5 +1,5 @@
  import React from "react";
-import { assets, dummyUserData } from "../assets/assets.js";
+import { assets } from "../assets/assets.js";
 import { Link, useNavigate } from "react-router-dom";
 import MenuItems from "./MenuItems.jsx";
 import { CirclePlus, LogOut } from "lucide-react";
@@ -8,20 +8,22 @@ import { useSelector } from "react-redux";
 
 const SideBar = ({ sideBarOpen, setSideBarOpen }) => {
   const navigate = useNavigate();
-  const user =  useSelector((state)=>state.user.value)
+  const user = useSelector((state) => state.user.value);
   const { signOut } = useClerk();
 
   return (
     <div
-      className={`w-60 xl:w-72 bg-white border-r border-gray-200 flex flex-col justify-between items-center max-sm:absolute top-0 bottom-0 z-20 ${
-        sideBarOpen ? "translate-x-0" : "max-sm:translate-x-full"
-      } transition-all duration-300 ease-in-out`}
+      className={`w-60 xl:w-72 bg-white border-r border-gray-200 flex flex-col justify-between items-center h-full
+        max-sm:fixed max-sm:top-0 max-sm:left-0 max-sm:z-40 max-sm:h-screen 
+        transition-transform duration-300 ease-in-out
+        ${sideBarOpen ? "translate-x-0" : "max-sm:-translate-x-full"}
+      `}
     >
       <div className="w-full">
-        {/* Logo + Name Container */}
+        {/* Logo + Name */}
         <div
           onClick={() => navigate("/")}
-          className="flex items-center ml-4 my-2 cursor-pointer gap-2"
+          className="flex items-center ml-4 my-3 cursor-pointer gap-2 max-sm:mt-14"
         >
           <img src={assets.logo} alt="logo" className="w-16 h-16" />
           <h1 className="text-3xl font-extrabold tracking-wide">
