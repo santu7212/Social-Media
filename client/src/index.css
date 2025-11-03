@@ -10,6 +10,14 @@
   display: none;
 }
 
+/* html {
+  @apply bg-white text-gray-900 transition-colors duration-300;
+}
+
+html.dark {
+  @apply bg-gradient-to-br from-blue-950 via-slate-900 to-red-900 text-white transition-colors duration-300;
+} */
+
 
 
 /* gpt suggest  */
