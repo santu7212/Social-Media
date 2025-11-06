@@ -11,7 +11,7 @@ import messageRouter from "./routes/message.routes.js";
 
 const app = express();
 
-// ✅ Allow both local and deployed frontend
+ 
 app.use(cors({
   origin: [
     "http://localhost:5173",

@@ -18,18 +18,18 @@ const addUserStory = async (req, res) => {
     const media = req.file; 
     let media_url = "";
 
-    // Upload to ImageKit only if there's an actual file
+    
     if ((media_type === "image" || media_type === "video") && media) {
-      const fileBuffer = fs.readFileSync(media.path); // ✅ fixed here
+      const fileBuffer = fs.readFileSync(media.path); 
 
       const response = await imagekit.upload({
         file: fileBuffer,
-        fileName: media.originalname, // ✅ fixed variable name
+        fileName: media.originalname, 
       });
 
       media_url = response.url;
 
-      // cleanup the local file after upload (optional but recommended)
+     
       fs.unlinkSync(media.path);
     }
 

@@ -239,9 +239,7 @@ await sendEmail({
   }
 );
 
-// ---------------------
-// Export Functions
-// ---------------------
+ 
 export const functions = [
   syncUserCreation,
   syncUserUpdation,

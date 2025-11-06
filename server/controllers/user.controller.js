@@ -137,7 +137,7 @@ const discoverUser = async (req, res) => {
 const unfollowUser = async (req, res) => {
   try {
     const { userId } = req.auth();
-    const { targetId } = req.body; // 👈 the user you want to unfollow
+    const { targetId } = req.body; 
 
     // Prevent unfollowing yourself
     if (userId === targetId) {
@@ -155,11 +155,11 @@ const unfollowUser = async (req, res) => {
       return res.json({ success: false, message: "User not found" });
     }
 
-    // Remove targetId from logged-in user's 'following' list
+   
     user.following = user.following.filter((id) => id !== targetId);
     await user.save();
 
-    // Remove userId from target user's 'followers' list
+
     targetUser.followers = targetUser.followers.filter((id) => id !== userId);
     await targetUser.save();
 

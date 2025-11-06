@@ -3,7 +3,7 @@ import { imagekit } from "../configs/imagekit.js";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 
-// Add post // controllers/post.controller.js (addPost)
+
 const addPost = async (req, res) => {
   try {
     const { userId } = req.auth();
@@ -13,8 +13,7 @@ const addPost = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ success: false, message: "User ID missing" });
     }
-
-    // Ensure user exists
+ 
     const userExists = await User.findById(userId);
     if (!userExists) {
       return res.status(404).json({ success: false, message: "User not found" });
@@ -39,7 +38,7 @@ const addPost = async (req, res) => {
     }
 
     const newPost = await Post.create({
-      user: userId,     // important: save the clerk string id
+      user: userId,    
       content,
       image_urls,
       post_type,
@@ -54,7 +53,7 @@ const addPost = async (req, res) => {
 };
 
 
-// Get Post // controllers/post.controller.js (getFeedPost)
+
 const getFeedPost = async (req, res) => {
   try {
     const { userId } = req.auth();
@@ -67,12 +66,11 @@ const getFeedPost = async (req, res) => {
       .populate({
         path: "user",
         model: "User",
-        select: "full_name username profile_picture", // choose fields you need
+        select: "full_name username profile_picture", 
       })
       .sort({ createdAt: -1 })
       .lean();
 
-    // Remove posts where populate failed and user is null/undefined
     const validPosts = posts.filter(p => p.user);
 
     return res.status(200).json({ success: true, posts: validPosts });

@@ -24,9 +24,9 @@ const App = () => {
   const { pathname } = useLocation();
   const pathNameRef = useRef(pathname);
   const dispatch = useDispatch();
-  const sseRef = useRef(null); // keep SSE connection reference
+  const sseRef = useRef(null);  
 
-  // 1️⃣ Fetch user + connections when logged in
+  // Fetch user connections when logged in
   useEffect(() => {
     const fetchData = async () => {
       if (isLoaded && user) {
@@ -38,24 +38,24 @@ const App = () => {
     fetchData();
   }, [user, isLoaded, getToken, dispatch]);
 
-  // 2️⃣ Update ref when route changes
+  // Update ref when route changes
   useEffect(() => {
     pathNameRef.current = pathname;
   }, [pathname]);
 
-  // 3️⃣ Handle Server-Sent Events (live messages)
+  //  Handle Server-Sent Events (live messages)
   useEffect(() => {
     if (!user) return;
 
     const connectSSE = () => {
       const url = `${import.meta.env.VITE_BASEURL}/api/message/${user.id}`;
-      console.log("🔗 Connecting to SSE:", url);
+      console.log(" Connecting to SSE:", url);
 
       const eventSource = new EventSource(url, { withCredentials: false });
       sseRef.current = eventSource;
 
       eventSource.onopen = () => {
-        console.log("✅ SSE connected successfully");
+        console.log("SSE connected successfully");
       };
 
       eventSource.onmessage = (event) => {
@@ -109,7 +109,7 @@ const App = () => {
 
     connectSSE();
 
-    // 4️⃣ Cleanup SSE when user logs out or component unmounts
+     
     return () => {
       if (sseRef.current) {
         console.log("🔌 Closing SSE connection");

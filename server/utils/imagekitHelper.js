@@ -28,7 +28,7 @@ export const uploadToImageKit = async (file, width) => {
       ],
     });
   } catch (error) {
-    console.error("❌ ImageKit Upload Error:", error.message);
+    console.error(" ImageKit Upload Error:", error.message);
     throw error;
   }
 };
